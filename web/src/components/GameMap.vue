@@ -22,7 +22,7 @@ export default {
 
 <template>
 <div ref="parent"  class="gameMap">
-  <canvas ref="canvas"></canvas>
+  <canvas ref="canvas" tabindex="0"></canvas>
 </div>
 </template>
 
