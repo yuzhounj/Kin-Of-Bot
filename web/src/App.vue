@@ -8,10 +8,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 //import js
 import "bootstrap/dist/js/bootstrap";
 
+
 export default {
     components: {
         NavBar
-    }
+    },
 }
 </script>
 <style>
