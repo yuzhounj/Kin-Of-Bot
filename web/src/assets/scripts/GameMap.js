@@ -3,10 +3,11 @@ import {Wall} from "@/assets/scripts/Wall";
 import {Snake} from "@/assets/scripts/Snake";
 
 export class GameMap extends AcGameObjects {
-    constructor(ctx, parent) {
+    constructor(ctx, parent,store) {
         super();
         this.ctx = ctx;
         this.parent = parent;
+        this.store=store;
         this.L = 0;
 
         this.rows = 13;
@@ -23,91 +24,32 @@ export class GameMap extends AcGameObjects {
 
     addListeningEvents() {
         this.ctx.canvas.focus();
-        const [snake0, snake1] = this.snakes;
         this.ctx.canvas.addEventListener("keydown", e => {
+            let d=-1;
             if (e.key === "w") {
-                snake0.setDirection(0)
+                d=0;
             } else if (e.key === "d") {
-                snake0.setDirection(1);
+               d=1;
             } else if (e.key === "s") {
-                snake0.setDirection(2);
+               d=2;
             } else if (e.key === "a") {
-                snake0.setDirection(3);
-            } else if (e.key === "ArrowUp") {
-                snake1.setDirection(0);
-            } else if (e.key === "ArrowRight") {
-                snake1.setDirection(1);
-            } else if (e.key === "ArrowDown") {
-                snake1.setDirection(2);
-            } else if (e.key === "ArrowLeft") {
-                snake1.setDirection(3);
+                d=3;
+            }
+
+            if(d>=0){
+                this.store.state.pk.socket.send(JSON.stringify({
+                    event: "move",
+                    direction: d,
+                }))
             }
         });
     }
 
-    checkConnectivity(g, sx, sy, tx, ty) {
-        if (sx === tx && sy === ty) {
-            return true;
-        }
-        g[sx][sy] = true;
-        let dx = [0, 0, 1, -1];
-        let dy = [1, -1, 0, 0];
-        for (let i = 0; i < 4; i++) {
-            let x = sx + dx[i];
-            let y = sy + dy[i];
-            if (x >= 0 && x < this.rows && y >= 0 && y < this.cols && !g[x][y]) {
-                if (this.checkConnectivity(g, x, y, tx, ty)) {
-                    return true;
-                }
-            }
-        }
-        return false;
 
-    }
 
     creatWall() {
-        const g = [];
-        for (let row = 0; row < this.rows; row++) {
-            g[row] = [];
-            for (let col = 0; col < this.cols; col++) {
-                g[row][col] = false;
-            }
-        }
-        //给四周添上墙
-        for (let i = 0; i < this.rows; i++) {
-            g[i][0] = true;
-            g[i][this.cols - 1] = true;
-        }
-        for (let i = 0; i < this.cols; i++) {
-            g[0][i] = true;
-            g[this.rows - 1][i] = true;
-        }
 
-        //创建随机墙
-        for (let i = 0; i < this.innerWallsCount / 2; i++) {
-            for (let j = 0; j < 1000; j++) {
-                let row = parseInt(Math.random() * this.rows);
-                let col = parseInt(Math.random() * this.cols);
-                if (g[row][col] || g[this.rows - 1 - row][this.cols - 1 - col]) {
-                    continue;
-                }
-                //左下角和右上角不放墙
-                if ((row === 1 && col === this.cols - 2) || (row === this.rows - 2 && col === 1)) {
-                    continue;
-                }
-                g[row][col] = true;
-                g[this.rows - 1 - row][this.cols - 1 - col] = true;
-                break;
-
-            }
-
-        }
-
-        const copyG = JSON.parse(JSON.stringify(g));
-        if (!this.checkConnectivity(copyG, this.rows - 2, 1, 1, this.cols - 2)) {
-            return false;
-        }
-
+        const g=this.store.state.pk.gameMap;
         //g赋值给walls
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.cols; j++) {
@@ -117,7 +59,6 @@ export class GameMap extends AcGameObjects {
             }
 
         }
-        return true;
     }
 
     checkSnakeReady() {//判断蛇是否准备好
@@ -153,11 +94,7 @@ export class GameMap extends AcGameObjects {
 
     start() {
 
-        for (let i = 0; i < 1000; i++) {
-            if (this.creatWall()) {
-                break;
-            }
-        }
+        this.creatWall();
         this.addListeningEvents();
 
     }

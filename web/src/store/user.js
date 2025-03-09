@@ -39,10 +39,10 @@ export default {
                 }),
                 success(resp){
                     if(resp.error_message==="success"){
-                        localStorage.setItem("jwt_token", resp.token);
+                        sessionStorage.setItem("jwt_token", resp.token);
                         context.commit("updateToken", resp.token);
                         data.success(resp);
-                        console.log(localStorage.getItem("jwt_token"));
+                        console.log(sessionStorage.getItem("jwt_token"));
                     }else{
                         data.error(resp);
                     }
@@ -80,7 +80,7 @@ export default {
 
         },
         logout(context) {
-            localStorage.removeItem("jwt_token");
+            sessionStorage.removeItem("jwt_token");
             context.commit("logout");
         }
     },

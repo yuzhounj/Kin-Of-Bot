@@ -13,7 +13,7 @@ export default {
     const password = ref('');
     const error_message= ref('');
     let show_content=ref(false);
-    const jwt_token = localStorage.getItem('jwt_token');
+    const jwt_token = sessionStorage.getItem('jwt_token');
     if(jwt_token){
       store.commit("updateToken",jwt_token);
       store.dispatch("getInfo",{

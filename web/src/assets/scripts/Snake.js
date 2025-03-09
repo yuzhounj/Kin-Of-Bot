@@ -28,6 +28,7 @@ export class Snake extends AcGameObjects {
     }
 
     checkTailIncrease() {
+        if(this.step<=10)return true;
         return this.step % 3 === 1;
 
     }
@@ -44,9 +45,6 @@ export class Snake extends AcGameObjects {
             this.cells[i] = JSON.parse(JSON.stringify(this.cells[i - 1]));
         }
 
-        if(!this.gamemap.checkValid(this.nextCell)){
-            this.status="die";
-        }
     }
 
     setDirection(d) {
